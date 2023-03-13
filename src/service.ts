@@ -10,11 +10,16 @@ async function addTaskListener(taskId: string, callback: Function) {
   tasks[taskId] = callback;
 }
 
+let isResponseListenerInitialised = false;
 interface ReceivedData {
   taskId: string;
   result: any;
 }
 async function initResponseListener() {
+  if (isResponseListenerInitialised) {
+    return;
+  }
+
   await addResponseListener((data: ReceivedData) => {
     console.log('Receive:');
     console.log(data);
@@ -22,6 +27,8 @@ async function initResponseListener() {
     tasks[taskId](data.result);
     delete tasks[taskId];
   });
+
+  isResponseListenerInitialised = true;
 }
 
 function execute(command: string, payload: any): Promise<any> {
